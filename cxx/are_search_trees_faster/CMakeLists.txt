@@ -5,7 +5,9 @@ set(CMAKE_CXX_FLAGS "-Wall -Werror")
 
 project(benchmark-search-tree)
 find_package(benchmark)
+find_package(GTest REQUIRED)
 
-add_executable(main main.cc SearchTree.h ISearchTree.h StandardMapWrapper.h)
+add_executable(main main.cc SearchTree.h ISearchTree.h StandardMapWrapper.h SortedAssociationVector.h)
 target_link_libraries(main benchmark::benchmark)
-add_executable(test test.cc SearchTree.h ISearchTree.h StandardMapWrapper.h)
+add_executable(test test.cc SearchTree.h ISearchTree.h StandardMapWrapper.h SortedAssociationVector.h)
+target_link_libraries(test GTest::gtest_main)

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <functional>
 #include <map>
 #include <optional>
@@ -14,6 +15,7 @@ public:
     auto result = map.insert(std::make_pair<Key, Value>(std::move(key), std::move(value)));
     return result.second;
   }
+
   std::optional<std::reference_wrapper<const Value>> find(Key &&key) const {
     const auto lookup = map.find(std::forward<Key>(key));
     if (lookup == map.cend()) [[unlikely]] {
