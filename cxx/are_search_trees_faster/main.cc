@@ -1,3 +1,4 @@
+#include "AvlTree.h"
 #include "ISearchTree.h"
 #include "SearchTree.h"
 #include "SortedAssociationVector.h"
@@ -6,6 +7,7 @@
 #include <cassert>
 #include <cstdint>
 
+using datastructures::AvlTree;
 using datastructures::SearchTree;
 using datastructures::SortedAssociationVector;
 
@@ -36,6 +38,7 @@ void BM_linear_find(::benchmark::State &state) {
 using IntSearchTree = SearchTree<int64_t, int64_t>;
 using IntStandardMapWrapper = StandardMapWrapper<int64_t, int64_t>;
 using IntSortedAssociationVector = SortedAssociationVector<int64_t, int64_t>;
+using IntAvlTree = AvlTree<int64_t, int64_t>;
 
 BENCHMARK(BM_linear_find<IntSearchTree>)
     ->Range(1, 1 << 12)
@@ -46,6 +49,10 @@ BENCHMARK(BM_linear_find<IntStandardMapWrapper>)
     ->Complexity(benchmark::BigO::oAuto);
 
 BENCHMARK(BM_linear_find<IntSortedAssociationVector>)
+    ->Range(1, 1 << 12)
+    ->Complexity(benchmark::BigO::oAuto);
+
+BENCHMARK(BM_linear_find<IntAvlTree>)
     ->Range(1, 1 << 12)
     ->Complexity(benchmark::BigO::oAuto);
 

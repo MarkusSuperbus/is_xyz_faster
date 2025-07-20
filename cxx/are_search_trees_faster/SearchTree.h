@@ -1,7 +1,57 @@
+#pragma once
+
 #include <functional>
 #include <optional>
 #include <utility>
 namespace datastructures {
+
+template <typename Key, typename Value> class InternalTree;
+template <typename Key, typename Value>
+using InternalTreePtr = InternalTree<Key, Value> *;
+template <typename Key, typename Value> class InternalTree {
+public:
+  using EntryT = std::pair<Key, Value>;
+  EntryT entry;
+  InternalTreePtr<Key, Value> left = nullptr;
+  InternalTreePtr<Key, Value> right = nullptr;
+
+  InternalTree(Key &&key, Value &&value)
+      : entry(std::make_pair(std::move(key), std::move(value))) {}
+  static void clear(InternalTreePtr<Key, Value> child) {
+    if (child != nullptr) {
+      child->clear();
+      delete child;
+    }
+  }
+
+  void clear() {
+    clear(left);
+    clear(right);
+  }
+
+  std::optional<std::reference_wrapper<const Value>>
+  findIfSearchTree(Key &&key) const {
+    const InternalTreePtr<Key, Value> *position = nullptr;
+    if (entry.first < key) {
+      position = &left;
+    } else if (entry.first > key) {
+      position = &right;
+    } else {
+      return {std::ref(entry.second)};
+    }
+    while (*position != nullptr) {
+      InternalTreePtr<Key, Value> value = *position;
+      if (value->entry.first < key) {
+        position = &value->left;
+      } else if (value->entry.first > key) {
+        position = &value->right;
+      } else {
+        return {std::ref(value->entry.second)};
+      }
+    }
+    return {};
+  }
+};
 
 template <typename Key, typename Value> class SearchTree {
 public:
@@ -11,24 +61,22 @@ public:
   SearchTree &operator=(const SearchTree &) = default;
   SearchTree &operator=(SearchTree &&) = default;
 
-  using EntryT = std::pair<Key, Value>;
-
   bool insert(Key &&key, Value &&value) {
     if (root == nullptr) {
-      root = new InternalNode{std::move(key), std::move(value)};
+      root = new InternalTree{std::move(key), std::move(value)};
       return true;
     }
-    InternalNodePtr position = root;
+    InternalTreePtr<Key, Value> position = root;
     while (position != nullptr) {
       if (position->entry.first < key) {
         if (position->left == nullptr) {
-          position->left = new InternalNode{std::move(key), std::move(value)};
+          position->left = new InternalTree{std::move(key), std::move(value)};
           return true;
         }
         position = position->left;
       } else if (position->entry.first > key) {
         if (position->right == nullptr) {
-          position->right = new InternalNode{std::move(key), std::move(value)};
+          position->right = new InternalTree{std::move(key), std::move(value)};
           return true;
         }
         position = position->right;
@@ -40,52 +88,15 @@ public:
   }
 
   std::optional<std::reference_wrapper<const Value>> find(Key &&key) const {
-    const InternalNodePtr *position = nullptr;
-    if (root != nullptr) {
-      position = &root;
+    if (root == nullptr) {
+      return {};
     }
-    while (*position != nullptr) {
-      InternalNodePtr value = *position;
-      if (value->entry.first < key) {
-        position = &value->left;
-      } else if (value->entry.first > key) {
-        position = &value->right;
-      } else {
-        return {std::ref(value->entry.second)};
-      }
-    }
-    return {};
+    return root->findIfSearchTree(std::move(key));
   }
 
-  ~SearchTree() {
-      InternalNode::clear(root);
-  }
+  ~SearchTree() { InternalTree<Key, Value>::clear(root); }
 
 private:
-  class InternalNode;
-  using InternalNodePtr = InternalNode *;
-
-  class InternalNode {
-  public:
-    EntryT entry;
-    InternalNodePtr left = nullptr;
-    InternalNodePtr right = nullptr;
-
-    InternalNode(Key &&key, Value &&value)
-        : entry(std::make_pair(std::move(key), std::move(value))) {}
-    static void clear(InternalNodePtr child) {
-      if (child != nullptr) {
-        child->clear();
-        delete child;
-      }
-    }
-
-    void clear() {
-      clear(left);
-      clear(right);
-    }
-  };
-
-  InternalNodePtr root = nullptr;
+  InternalTreePtr<Key, Value> root = nullptr;
 };
 } // namespace datastructures

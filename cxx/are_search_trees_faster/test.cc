@@ -1,3 +1,4 @@
+#include "AvlTree.h"
 #include "ISearchTree.h"
 #include "SearchTree.h"
 #include "SortedAssociationVector.h"
@@ -6,6 +7,7 @@
 #include <gtest/gtest.h>
 #include <optional>
 
+using datastructures::AvlTree;
 using datastructures::SearchTree;
 using datastructures::SortedAssociationVector;
 
@@ -41,3 +43,5 @@ TEST(SearchTreeTest, InsertionAndLookup) {
 TEST(StandardMapWrapper, InsertionAndLookup) {
   test<StandardMapWrapper<int64_t, int64_t>>();
 }
+
+TEST(AvlTreeTest, InsertionAndLookup) { test<AvlTree<int64_t, int64_t>>(); }
